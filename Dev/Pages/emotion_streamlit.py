@@ -1,6 +1,7 @@
 import cv2
 import os
 import streamlit as st
+import streamlit.components.v1 as components
 import numpy as np
 import requests
 from PIL import Image
@@ -136,3 +137,72 @@ with col1:
 
 with col2:
     st.write("Video")
+    components.html(
+    """
+    <!DOCTYPE html>
+    <html>
+    <body>
+        <!-- 1. The <iframe> (and video player) will replace this <div> tag. -->
+        <div id="player"></div>
+        <p>Time: <span id="time">0</span> seconds</p>
+        <script>
+    // Load the IFrame Player API code asynchronously.
+    var tag = document.createElement("script");
+
+    tag.src = "https://www.youtube.com/iframe_api";
+    var firstScriptTag = document.getElementsByTagName("script")[0];
+    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+    // Instantiate the Player.
+    function onYouTubeIframeAPIReady() {
+    var player = new YT.Player("player", {
+        height: "390",
+        width: "640",
+        videoId: "M7lc1UVf-VE"
+    });
+
+    // This is the source "window" that will emit the events.
+    var iframeWindow = player.getIframe().contentWindow;
+
+    // So we can compare against new updates.
+    var lastTimeUpdate = 0;
+
+    // Listen to events triggered by postMessage,
+    // this is how different windows in a browser
+    // (such as a popup or iFrame) can communicate.
+    // See: https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage
+    window.addEventListener("message", function(event) {
+        // Check that the event was sent from the YouTube IFrame.
+        if (event.source === iframeWindow) {
+        var data = JSON.parse(event.data);
+
+        // The "infoDelivery" event is used by YT to transmit any
+        // kind of information change in the player,
+        // such as the current time or a playback quality change.
+        if (
+            data.event === "infoDelivery" &&
+            data.info &&
+            data.info.currentTime
+        ) {
+            // currentTime is emitted very frequently (milliseconds),
+            // but we only care about whole second changes.
+            var time = Math.floor(data.info.currentTime);
+
+            if (time !== lastTimeUpdate) {
+            lastTimeUpdate = time;
+            
+            // It's now up to you to format the time.
+            document.getElementById("time").innerHTML = time;
+            }
+        }
+        }
+    });
+    }
+
+        </script>
+    </body>
+    </html>
+
+
+        """, height = 600
+    )

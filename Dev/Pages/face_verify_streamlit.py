@@ -7,9 +7,12 @@ import threading
 import mysql.connector
 import uuid
 from azure.storage.blob import BlobServiceClient
+from dotenv import load_dotenv
+import os
 
 HOST_URL = '20.124.81.163:5000/'
 
+load_dotenv()
 # Connect to the MySQL database
 db_connection = mysql.connector.connect(
     host= 'localhost',
