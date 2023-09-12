@@ -9,20 +9,23 @@ import threading
 import mysql.connector
 import uuid 
 from azure.storage.blob import BlobServiceClient
+from dotenv import load_dotenv
 
-HOST_URL = 'http://20.124.81.163:5000/'
+HOST_URL = os.getenv("HOST_URL")
+
+load_dotenv()
 
 # Connect to the MySQL database
 db_connection = mysql.connector.connect(
-    host= 'localhost',
-    user='root',
-    password='9160999Aa1$',
-    database='staging_dbrd')
+    host= os.getenv("db_connection_host"),
+    user=os.getenv("db_connection_user"),
+    password=os.getenv("db_connection_password"),
+    database=os.getenv("db_connection_database"))
 
 st.sidebar.success("Select page from above")
 
 # Upload the image to Azure Blob Storage
-connection_string = "DefaultEndpointsProtocol=https;AccountName=signalstoragecontent;AccountKey=W2KtrfbEYkgE35Ei4TMRFGf8/BhODwSzjxAAamAly9SgLShyUayRKbt/D6v9tRiR+qK2dPOAhNFz+ASttDGWuQ==;EndpointSuffix=core.windows.net"
+connection_string = os.getenv("connection_string")
 blob_service_client = BlobServiceClient.from_connection_string(connection_string)
 
 def save_image_and_emotion(frame_image, emotion):
