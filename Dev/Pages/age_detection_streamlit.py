@@ -13,9 +13,9 @@ HOST_URL = 'http://20.124.81.163:5000/'
 # Connect to the MySQL database
 db_connection = mysql.connector.connect(
     host= 'localhost',
-    user='root',
-    password='9160999Aa1$',
-    database='staging_dbrd')
+    user=os.getenv("user"),
+    password=os.getenv("password"),
+    database=os.getenv("database"))
 
 st.sidebar.success("Select page from above")
 
