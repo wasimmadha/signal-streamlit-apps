@@ -1,2 +1,4 @@
 requests
 streamlit
+opencv-python
+mysql-connector-python

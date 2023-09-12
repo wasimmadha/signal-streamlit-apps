@@ -14,8 +14,10 @@ HOST_URL = '20.124.81.163:5000/'
 db_connection = mysql.connector.connect(
     host= 'localhost',
     user='root',
-    password='password',
-    database='staging_dbRD')
+    password='9160999Aa1$',
+    database='staging_dbrd')
+
+st.sidebar.success("Select page from above")
 
 # Global variable to store the results
 global_result = None

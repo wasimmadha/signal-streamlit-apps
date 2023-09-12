@@ -8,14 +8,16 @@ import mysql.connector
 import uuid
 from azure.storage.blob import BlobServiceClient
 
-HOST_URL = '20.124.81.163:5000/'
+HOST_URL = 'http://20.124.81.163:5000/'
 
 # Connect to the MySQL database
 db_connection = mysql.connector.connect(
     host= 'localhost',
     user='root',
-    password='password',
-    database='staging_dbRD')
+    password='9160999Aa1$',
+    database='staging_dbrd')
+
+st.sidebar.success("Select page from above")
 
 # Upload the image to Azure Blob Storage
 connection_string = "DefaultEndpointsProtocol=https;AccountName=signalstoragecontent;AccountKey=W2KtrfbEYkgE35Ei4TMRFGf8/BhODwSzjxAAamAly9SgLShyUayRKbt/D6v9tRiR+qK2dPOAhNFz+ASttDGWuQ==;EndpointSuffix=core.windows.net"
