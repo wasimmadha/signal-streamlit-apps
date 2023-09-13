@@ -2,3 +2,5 @@ requests
 streamlit
 opencv-python-headless
 mysql-connector-python
+azure-storage-blob
+python-dotenv
