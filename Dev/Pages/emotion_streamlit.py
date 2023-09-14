@@ -12,6 +12,11 @@ import uuid
 from azure.storage.blob import BlobServiceClient
 from dotenv import load_dotenv
 import os
+import streamlit as st
+from streamlit_player import st_player
+import math
+from datetime import datetime
+import time
 
 HOST_URL = 'http://20.124.81.163:5000/'
 
@@ -30,6 +35,7 @@ connection_string = "DefaultEndpointsProtocol=https;AccountName=signalstoragecon
 blob_service_client = BlobServiceClient.from_connection_string(connection_string)
 
 col1, col2 = st.columns(2)
+
 with col1:
     def save_image_and_emotion(frame_image, emotion):
         # Generate a unique filename using UUID
@@ -136,73 +142,8 @@ with col1:
     cv2.destroyAllWindows()
 
 with col2:
-    st.write("Video")
-    components.html(
-    """
-    <!DOCTYPE html>
-    <html>
-    <body>
-        <!-- 1. The <iframe> (and video player) will replace this <div> tag. -->
-        <div id="player"></div>
-        <p>Time: <span id="time">0</span> seconds</p>
-        <script>
-    // Load the IFrame Player API code asynchronously.
-    var tag = document.createElement("script");
-
-    tag.src = "https://www.youtube.com/iframe_api";
-    var firstScriptTag = document.getElementsByTagName("script")[0];
-    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-
-    // Instantiate the Player.
-    function onYouTubeIframeAPIReady() {
-    var player = new YT.Player("player", {
-        height: "390",
-        width: "640",
-        videoId: "M7lc1UVf-VE"
-    });
-
-    // This is the source "window" that will emit the events.
-    var iframeWindow = player.getIframe().contentWindow;
-
-    // So we can compare against new updates.
-    var lastTimeUpdate = 0;
-
-    // Listen to events triggered by postMessage,
-    // this is how different windows in a browser
-    // (such as a popup or iFrame) can communicate.
-    // See: https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage
-    window.addEventListener("message", function(event) {
-        // Check that the event was sent from the YouTube IFrame.
-        if (event.source === iframeWindow) {
-        var data = JSON.parse(event.data);
-
-        // The "infoDelivery" event is used by YT to transmit any
-        // kind of information change in the player,
-        // such as the current time or a playback quality change.
-        if (
-            data.event === "infoDelivery" &&
-            data.info &&
-            data.info.currentTime
-        ) {
-            // currentTime is emitted very frequently (milliseconds),
-            // but we only care about whole second changes.
-            var time = Math.floor(data.info.currentTime);
-
-            if (time !== lastTimeUpdate) {
-            lastTimeUpdate = time;
-            
-            // It's now up to you to format the time.
-            document.getElementById("time").innerHTML = time;
-            }
-        }
-        }
-    });
-    }
-
-        </script>
-    </body>
-    </html>
-
-
-        """, height = 600
-    )
+    st.title("Video")
+    options = {"events": ["onProgress"], "progress_interval": 5000}
+    event = st_player("https://youtu.be/CmSKVW1v0xM", **options)
+    x = event.data
+    st.write("Elapsed Seconds:" , math.floor(x.get("playedSeconds")))
