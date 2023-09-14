@@ -8,7 +8,7 @@ from PIL import Image
 import tempfile
 import threading
 import mysql.connector
-import uuid 
+import uuid
 from azure.storage.blob import BlobServiceClient
 from dotenv import load_dotenv
 import os
@@ -18,15 +18,16 @@ import math
 from datetime import datetime
 import time
 
-HOST_URL = 'http://20.124.81.163:5000/'
+HOST_URL = "http://20.124.81.163:5000/"
 
 load_dotenv()
 # Connect to the MySQL database
 db_connection = mysql.connector.connect(
-    host= 'localhost',
+    host="localhost",
     user=os.getenv("user"),
     password=os.getenv("password"),
-    database=os.getenv("database"))
+    database=os.getenv("database"),
+)
 
 st.sidebar.success("Select page from above")
 
@@ -35,19 +36,21 @@ connection_string = "DefaultEndpointsProtocol=https;AccountName=signalstoragecon
 blob_service_client = BlobServiceClient.from_connection_string(connection_string)
 
 col1, col2 = st.columns(2)
-
 with col1:
+
     def save_image_and_emotion(frame_image, emotion):
         # Generate a unique filename using UUID
-        unique_filename = str(emotion) + '_' + str(uuid.uuid4()) + '.jpg'
-        
-        os.makedirs('face_emotion', exist_ok=True)
+        unique_filename = str(emotion) + "_" + str(uuid.uuid4()) + ".jpg"
+
+        os.makedirs("face_emotion", exist_ok=True)
         # Save the frame as an image
-        image_path = os.path.join('face_emotion', unique_filename)
+        image_path = os.path.join("face_emotion", unique_filename)
         cv2.imwrite(image_path, frame_image)
-        
-        blob_client = blob_service_client.get_blob_client(container="signaltest", blob=image_path)
-        
+
+        blob_client = blob_service_client.get_blob_client(
+            container="signaltest", blob=image_path
+        )
+
         with open(image_path, "rb") as data:
             blob_client.upload_blob(data)
 
@@ -69,23 +72,25 @@ with col1:
     # Function to predict emotion using an external service asynchronously
     def emotion_predict_async(frame_image):
         global global_result
-        
+
         # Create a temporary file to store the frame image
         temp_file = tempfile.NamedTemporaryFile(delete=False)
-        temp_filename = temp_file.name + '.jpg'
+        temp_filename = temp_file.name + ".jpg"
         cv2.imwrite(temp_filename, frame_image)
-        
-        url = HOST_URL + 'emotion-detector'
+
+        url = HOST_URL + "emotion-detector"
 
         try:
-            with open(temp_filename, 'rb') as image_file:
-                files = {'img': image_file}
+            with open(temp_filename, "rb") as image_file:
+                files = {"img": image_file}
                 response = requests.post(url=url, files=files)
                 if response.status_code == 200:
-                    result = response.json()  
+                    result = response.json()
                     emotion = result["emotion"]
-                    global_result = emotion 
-                    t1 = threading.Thread(target=save_image_and_emotion, args=(frame_image, emotion))
+                    global_result = emotion
+                    t1 = threading.Thread(
+                        target=save_image_and_emotion, args=(frame_image, emotion)
+                    )
                     t1.start()
 
         except requests.exceptions.RequestException as e:
@@ -93,16 +98,15 @@ with col1:
         finally:
             os.unlink(temp_filename)  # Remove the temporary file
 
-
     cap = cv2.VideoCapture(0)
     st.title("Video Stream")
 
     frame_placeholder = st.empty()
 
     def callback():
-        st.session_state['is_running'] = True
+        st.session_state["is_running"] = True
 
-    start_button = st.button('Start', on_click=callback)
+    start_button = st.button("Start", on_click=callback)
 
     frame_count = 0
     frame_processing = 90
@@ -119,10 +123,10 @@ with col1:
     thickness = 2
 
     if start_button:
-        if st.button('Stop'):
-            st.session_state['is_running'] = False
+        if st.button("Stop"):
+            st.session_state["is_running"] = False
         else:
-            while st.session_state['is_running']:
+            while st.session_state["is_running"]:
                 ret, frame = cap.read()
                 frame_count += 1
                 image = frame.copy()
@@ -132,18 +136,36 @@ with col1:
 
                 if global_result:
                     # Get the latest prediction
-                    frame_with_text = cv2.putText(frame, global_result, org, font, fontScale, color, thickness, cv2.LINE_AA)
-                    frame_placeholder.image(cv2.cvtColor(frame_with_text, cv2.COLOR_BGR2RGB), channels="RGB")
+                    frame_with_text = cv2.putText(
+                        frame,
+                        global_result,
+                        org,
+                        font,
+                        fontScale,
+                        color,
+                        thickness,
+                        cv2.LINE_AA,
+                    )
+                    frame_placeholder.image(
+                        cv2.cvtColor(frame_with_text, cv2.COLOR_BGR2RGB),
+                        channels="RGB",
+                    )
                 else:
-                    frame_placeholder.image(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB), channels="RGB")
+                    frame_placeholder.image(
+                        cv2.cvtColor(frame, cv2.COLOR_BGR2RGB), channels="RGB"
+                    )
 
     db_connection.close()
     cap.release()
     cv2.destroyAllWindows()
 
+
 with col2:
     st.title("Video")
-    options = {"events": ["onProgress"], "progress_interval": 5000}
-    event = st_player("https://youtu.be/CmSKVW1v0xM", **options)
-    x = event.data
-    st.write("Elapsed Seconds:" , math.floor(x.get("playedSeconds")))
+
+    def second_change():
+        options = {"events": ["onProgress"], "progress_interval": 5000}
+        event = st_player("https://youtu.be/CmSKVW1v0xM", **options)
+        return event.data.get("playedSeconds")
+    
+    st.write(math.floor(second_change()))
