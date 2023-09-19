@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div id="player"></div>
+  </body>
+  <script>
+    var tag = document.createElement("script");
+
+    tag.src = "https://www.youtube.com/iframe_api";
+    var firstScriptTag = document.getElementsByTagName("script")[0];
+    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+    // Instantiate the Player.
+    function onYouTubeIframeAPIReady() {
+      var player = new YT.Player("player", {
+        height: "390",
+        width: "640",
+        videoId: "M7lc1UVf-VE",
+      });
+
+      var iframeWindow = player.getIframe().contentWindow;
+      var lastTimeUpdate = 0;
+      var systime = 0;
+      window.addEventListener("message", function (event) {
+        if (event.source === iframeWindow) {
+          var data = JSON.parse(event.data);
+
+          if (
+            data.event === "infoDelivery" &&
+            data.info &&
+            data.info.currentTime
+          ) {
+            var time = Math.floor(data.info.currentTime);
+
+            if (time !== lastTimeUpdate) {
+              lastTimeUpdate = time;
+              const d = new Date();
+              systime = d.toJSON();
+              console.log(systime);
+              fetch("/process-data", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ data: lastTimeUpdate }),
+              })
+                .then((response) => response.text())
+                .then((result) => {
+                  console.log(result);
+                })
+                .catch((error) => {
+                  console.error("Error:", error);
+                });
+            }
+          }
+        }
+      });
+    }
+  </script>
+</html>
