@@ -1,4 +1,11 @@
-requests
-streamlit
-opencv-python
-mysql-connector-python
+azure_storage==0.37.0
+Flask==2.3.3
+mysql_connector_repackaged==0.3.1
+numpy==1.23.5
+opencv_python==4.8.0.74
+Pillow==9.5.0
+Pillow==10.0.1
+python-dotenv==1.0.0
+Requests==2.31.0
+streamlit==1.26.0
+streamlit_player==0.1.5
